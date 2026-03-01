@@ -1,30 +1,16 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from pathlib import Path
 from dotenv import load_dotenv
-import os
-from openai import OpenAI
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
+
+from fastapi import FastAPI
+from routers.chat import router as chat_router
 
 app = FastAPI()
 
-client = OpenAI(api_key=os.getenv("OPEN_API_KEY"))
-
-class ChatRequest(BaseModel):
-    message: str
-
 @app.get("/health")
-def health_check():
+def health():
     return {"status": "ok"}
 
-@app.post("/chat")
-def chat(request: ChatRequest):
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": request.message}
-        ]
-    )
-    return {
-        "reply": response.choices[0].message.content
-    }
+app.include_router(chat_router)
