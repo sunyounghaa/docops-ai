@@ -19,7 +19,7 @@ OpenAI API를 활용하여 간단한 채팅 응답을 제공하는 백엔드 서
 - FastAPI
 - Uvicorn
 - OpenAI Python SDK
-- python-dotenv
+- pydantic-settings
 
 ---
 
@@ -28,12 +28,15 @@ OpenAI API를 활용하여 간단한 채팅 응답을 제공하는 백엔드 서
 docops-ai/
 │
 ├── main.py
+├── core/
+│ └── settings.py
 ├── routers/
 │ └── chat.py
 ├── services/
 │ └── llm_service.py
 ├── schemas/
 │ └── chat_schema.py
+├── requirements.txt
 ├── .env
 └── README.md
 ```
@@ -52,21 +55,24 @@ cd docops-ai
 ### 2. Virtual Environment
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 ### 3. Install Dependencies
 
 ```bash
-pip install fastapi uvicorn openai python-dotenv
+pip install -r requirements.txt
 ```
 
 ### 4. Environment Variable
 
-Create ```.env``` file in project root:
+Create `.env` file in project root:
 ```
 OPENAI_API_KEY=your_api_key_here
+MODEL_NAME=gpt-4o-mini
+OPENAI_TIMEOUT_SEC=30
+APP_ENV=local
 ```
 
 ---
@@ -74,7 +80,7 @@ OPENAI_API_KEY=your_api_key_here
 ## ▶️ Run Server
 
 ```bash
-uvicorn main:app --reload
+python -m uvicorn main:app --reload
 ```
 
 Server runs at:
@@ -116,12 +122,22 @@ Request:
 Response:
 ```json
 {
-    "reply": "Hello! How can I assist you today?"
+  "reply": "Hello! How can I assist you today?",
+  "request_id": "084e880f-1564-49f6-89d8-0f5ab3373e48",
+  "session_id": "fc764c93-77fd-4849-bb5f-ff8c6c451798",
+  "usage": {
+    "prompt_tokens": 8,
+    "completion_tokens": 9,
+    "total_tokens": 17
+  }
 }
 ```
-
+> Token usage is returned per request to support cost tracking and observability.
 ---
 
 ## 📌 Notes
-- ```.env``` file is ignored via ```.gitignore```
+- `.env` file is ignored via ```.gitignore```
 - OpenAI API usage may incur costs
+- Each request generates a unique  `request_id`
+- Session-based design supports future RAG integration
+- Token usage is returned for cost tracking

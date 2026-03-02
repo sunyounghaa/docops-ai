@@ -1,27 +1,38 @@
-import os
+# services/llm_service.py
 from openai import OpenAI
+from core.settings import settings
+
+class OpenAIKeyMissingError(Exception): ...
+class OpenAIUpstreamError(Exception): ...
 
 _client: OpenAI | None = None
 
 def get_client() -> OpenAI:
     global _client
     if _client is None:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError(
-                "OPENAI_API_KEY is missing. Check .env location and load_dotenv() execution."
-            )
-        _client = OpenAI(api_key=api_key)
+        if not settings.OPENAI_API_KEY:
+            raise OpenAIKeyMissingError("OPENAI_API_KEY is missing.")
+        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
     return _client
 
-
-def generate_reply(message: str) -> str:
+def generate_reply(message: str) -> tuple[str, dict | None]:
     client = get_client()
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": message}
-        ]
-    )
 
-    return response.choices[0].message.content
+    try:
+        resp = client.chat.completions.create(
+            model=settings.MODEL_NAME,
+            messages=[{"role": "user", "content": message}],
+            timeout=settings.OPENAI_TIMEOUT_SEC,
+        )
+    except Exception as e:
+        raise OpenAIUpstreamError(f"OpenAI request failed: {e}")
+    
+    reply = resp.choices[0].message.content or ""
+    usage = None
+    if getattr(resp, "usage", None):
+        usage = {
+            "prompt_tokens": getattr(resp.usage, "prompt_tokens", None),
+            "completion_tokens": getattr(resp.usage, "completion_tokens", None),
+            "total_tokens": getattr(resp.usage, "total_tokens", None),
+        }
+    return reply, usage
