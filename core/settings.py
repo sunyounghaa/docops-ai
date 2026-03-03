@@ -16,4 +16,6 @@ class Settings(BaseSettings):
     OPENAI_TIMEOUT_SEC: int = 30
     APP_ENV: str = "local"
 
+    DATABASE_URL: str = f"sqlite:///{(BASE_DIR / 'app.db').as_posix()}"
+
 settings = Settings()

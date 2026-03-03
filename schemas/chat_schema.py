@@ -6,9 +6,9 @@ class ChatRequest(BaseModel):
     session_id: str | None = None
 
 class Usage(BaseModel):
-    prompt_tokens: int | None = None
-    completion_tokens: int | None = None
-    total_tokens: int | None = None
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 class ChatResponse(BaseModel):
     reply: str
