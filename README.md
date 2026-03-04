@@ -1,15 +1,24 @@
 # DocOps AI
 
-FastAPI 기반 LLM API 서버입니다.  
-OpenAI API를 활용하여 간단한 채팅 응답을 제공하는 백엔드 서비스입니다.
+LLM-powered FastAPI server with conversation persistence using SQLAlchemy.
+
+This project implements a production-style architecture for building LLM-backed services, including layered separation (router -> service -> repository), database persistence, and session-based conversation management.
 
 ---
 
-## 🚀 Project Goal
+## 🚀 Overview
 
-- FastAPI 기반 API 서버 구축
-- OpenAI LLM 연동
-- 엔지니어링 구조 분리 (router / service / schema)
+This server provides a chat API backed by OpenAI models and stores conversation history in SQLite.
+
+Key capabilities:
+
+- FastAPI-based REST API
+- OpenAI LLM integration
+- Conversation & Message data modeling
+- SQLAlchemy 2.0 ORM
+- Session-based chat persistence
+- Clean architectural separation of concerns
+- Swagger auto-generated API documentation
 
 ---
 
@@ -19,7 +28,40 @@ OpenAI API를 활용하여 간단한 채팅 응답을 제공하는 백엔드 서
 - FastAPI
 - Uvicorn
 - OpenAI Python SDK
-- pydantic-settings
+- pydantic-settings (Pydantic v2)
+- SQLAlchemy 2.0
+- SQLite
+
+---
+
+## 🧱 Architecture
+
+Request lifecycle:
+
+Router -> Service -> Repository -> Database
+
+### Layer Responsibilities
+
+**Router**
+- HTTP handling
+- Input validation
+- Exception handling
+- Response shaping
+
+**Service**
+- Chat orchestration logic
+- Session management
+- LLM invocation
+- Persistence coordination
+
+**Repository**
+- Database CRUD abstraction
+- SQLAlchemy query handling
+
+**Models**
+- Conversation / Message entity separation
+- Foreign key relationships
+- Token usage tracking
 
 ---
 
@@ -30,16 +72,56 @@ docops-ai/
 ├── main.py
 ├── core/
 │ └── settings.py
+├── db/
+│ └── base.py
+│ └── session.py
+│ └── init_db.py
+├── dependencies/
+│ └── db.py
+├── models/
+│ └── conversation.py
+│ └── message.py
+│ └── __init__.py
+├── repositories/
+│ └── conversation_repo.py
+│ └── message_repo.py
 ├── routers/
 │ └── chat.py
 ├── services/
+│ └── chat_service.py
 │ └── llm_service.py
 ├── schemas/
 │ └── chat_schema.py
+│ └── session_schema.py
 ├── requirements.txt
 ├── .env
 └── README.md
 ```
+
+---
+
+## 🗃 Data Model
+
+### Conversation
+
+- `session_id` (public session identifier)
+- `model`
+- `created_at`
+- `updated_at`
+
+### Message
+
+- `conversation_id` (FK -> conversations.id)\
+- `role` (user / assistant / system / tool)
+- `content`
+- `request_id`
+- `model`
+- `prompt_tokens`
+- `completion_tokens`
+- `total_tokens`
+- `created_at`
+
+Both user and assistant messages are persisted per request.
 
 ---
 
@@ -65,7 +147,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Environment Variable
+### 4. Configure Environment Variable
 
 Create `.env` file in project root:
 ```
@@ -73,6 +155,7 @@ OPENAI_API_KEY=your_api_key_here
 MODEL_NAME=gpt-4o-mini
 OPENAI_TIMEOUT_SEC=30
 APP_ENV=local
+DATABASE_URL=sqlite:///./app.db
 ```
 
 ---
@@ -83,9 +166,9 @@ APP_ENV=local
 python -m uvicorn main:app --reload
 ```
 
-Server runs at:
+Swagger documentation:
 ```
-http://127.0.0.1:8000
+http://127.0.0.1:8000/docs
 ```
 
 ---
@@ -106,7 +189,7 @@ Response:
 ```
 
 ---
-### Chat Endpoint
+### Chat
 
 ```
 POST /chat
@@ -115,9 +198,12 @@ POST /chat
 Request:
 ```json
 {
-    "message": "Hello"
+    "message": "Hello",
+    "session_id": null
 }
 ```
+
+If `session_id` is omitted or null, a new session is created.
 
 Response:
 ```json
