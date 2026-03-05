@@ -18,4 +18,7 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = f"sqlite:///{(BASE_DIR / 'app.db').as_posix()}"
 
+    MAX_HISTORY_MESSAGES: int = 20
+    SYSTEM_PROMPT: str = "You are a helpful assistant."
+
 settings = Settings()

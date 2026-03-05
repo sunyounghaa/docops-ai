@@ -50,4 +50,24 @@ class MessageRepository:
             stmt = stmt.order_by(Message.created_at.asc())
 
         stmt = stmt.limit(limit).offset(offset)
-        return list(self.db.execute(stmt).scalars().all)
+        return list(self.db.execute(stmt).scalars().all())
+    
+    def list_recent_by_conversation(
+    self,
+    conversation_id: str,
+    limit: int = 20
+    ) -> list[Message]:
+
+        stmt = (
+            select(Message)
+            .where(Message.conversation_id == conversation_id)
+            .order_by(Message.created_at.desc())
+            .limit(limit)
+        )
+
+        messages = list(self.db.execute(stmt).scalars().all())
+
+        # 시간순 reverse
+        messages.reverse()
+
+        return messages
