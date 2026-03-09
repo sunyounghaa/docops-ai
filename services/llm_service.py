@@ -15,13 +15,13 @@ def get_client() -> OpenAI:
         _client = OpenAI(api_key=settings.OPENAI_API_KEY)
     return _client
 
-def generate_reply(message: str) -> tuple[str, dict | None]:
+def generate_reply(messages: list[dict]) -> tuple[str, dict | None]:
     client = get_client()
 
     try:
         resp = client.chat.completions.create(
             model=settings.MODEL_NAME,
-            messages=[{"role": "user", "content": message}],
+            messages=messages,
             timeout=settings.OPENAI_TIMEOUT_SEC,
         )
     except Exception as e:

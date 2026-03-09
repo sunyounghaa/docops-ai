@@ -9,26 +9,14 @@ from repositories.message_repo import MessageRepository
 
 from services.llm_service import generate_reply
 
+from prompts.prompt_builder import build_chat_messages
+
 
 class ChatService:
     def __init__(self, db: Session):
         self.db = db
         self.conv_repo = ConversationRepository(db)
         self.msg_repo = MessageRepository(db)
-
-
-    def _build_llm_messages(self, conv_id: str) -> list[dict]:
-        # 최근 히스토리 로드
-        history = self.msg_repo.list_recent_by_conversation(
-            conversation_id=conv_id,
-            limit=settings.MAX_HISTORY_MESSAGES,
-        )
-
-        # system + history 구성
-        messages: list[dict] = [{"role": "system", "content": settings.SYSTEM_PROMPT}]
-        for m in history:
-            messages.append({"role": m.role, "content": m.content})
-        return messages
 
     def chat(self, message: str, session_id: str | None) -> dict:
         request_id = str(uuid4())
@@ -49,10 +37,16 @@ class ChatService:
             content=message,
         )
 
-        # 3-1) 히스토리 포함 messages 만들기
-        llm_messages = self._build_llm_messages(conv.id)
+        # history 조회
+        history = self.msg_repo.list_recent_by_conversation(
+            conversation_id=conv.id,
+            limit=100,
+        )
 
-        # 3-2) messages 기반 호출
+        # prompt 생성
+        llm_messages = build_chat_messages(history)
+
+        # LLM 호출
         reply, usage = generate_reply(llm_messages)
         usage = usage or {}
 
