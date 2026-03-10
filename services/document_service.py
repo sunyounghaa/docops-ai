@@ -25,7 +25,7 @@ def upload_document(db: Session, file: UploadFile):
             detail="Only PDF files are allowed.",
         )
 
-    storage_dir = Path(settings.document_storage_dir)
+    storage_dir = Path(settings.DOCUMENT_STORAGE_DIR)
     storage_dir.mkdir(parents=True, exist_ok=True)
 
     stored_filename = f"{uuid.uuid4().hex}{file_ext}"

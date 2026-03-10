@@ -13,4 +13,5 @@ def upload_document_endpoint(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
-    return upload_document(db=db, file=file)
+    document = upload_document(db=db, file=file)
+    return DocumentUploadResponse.model_validate(document)

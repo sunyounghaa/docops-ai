@@ -9,7 +9,7 @@ from db.base import Base
 class Document(Base):
     __tablename__ = "documents"
 
-    di: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     stored_filename: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     file_path: Mapped[str] = mapped_column(String(500), nullable=False, unique=True)
