@@ -1,7 +1,11 @@
 # db/init_db.py
 from db.base import Base
 from db.session import engine
-import models # noqa: F401 (모델 impport로 테이블 등록)
+
+from models.conversation import Conversation
+from models.message import Message
+from models.document import Document
+from models.document_chunk import DocumentChunk
 
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
