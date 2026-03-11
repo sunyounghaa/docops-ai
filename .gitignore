@@ -1,6 +1,15 @@
-app.db
-*.db
-venv/
-.venv/
+# Python
 __pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Environment variables
 .env
+
+# Database
+*.db
+
+# Uploaded files
+storage/documents/

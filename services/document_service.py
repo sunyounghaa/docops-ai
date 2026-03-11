@@ -6,9 +6,17 @@ from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from core.settings import settings
-from repositories.document_repo import create_document
+from repositories.document_repo import DocumentRepository
+from repositories.document_chunk_repo import DocumentChunkRepository
+from services.document_parser_service import DocumentParserService
+from services.chunking_service import ChunkingService
 
 ALLOWED_EXTENSIONS = {".pdf"}
+
+document_repo = DocumentRepository()
+document_chunk_repo = DocumentChunkRepository()
+document_parser_service = DocumentParserService()
+chunking_service = ChunkingService()
 
 
 def upload_document(db: Session, file: UploadFile):
@@ -37,7 +45,7 @@ def upload_document(db: Session, file: UploadFile):
         with file_path.open("wb") as buffer:
             buffer.write(file_bytes)
 
-        document = create_document(
+        document = document_repo.create_document(
             db=db,
             filename=file.filename,
             stored_filename=stored_filename,
@@ -45,6 +53,20 @@ def upload_document(db: Session, file: UploadFile):
             file_type=file.content_type or "application/pdf",
             status="uploaded",
         )
+
+        document_repo.update_document_status(db, document, "processing")
+
+        pages = document_parser_service.extract_pdf_pages(str(file_path))
+        chunks = chunking_service.create_chunks(pages)
+
+        if chunks:
+            document_chunk_repo.create_many(
+                db=db,
+                document_id=document.id,
+                chunks=chunks,
+            )
+
+        document = document_repo.update_document_status(db, document, "processed")
         return document
 
     except Exception as e:
