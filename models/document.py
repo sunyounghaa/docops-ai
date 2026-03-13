@@ -14,7 +14,7 @@ class Document(Base):
     stored_filename: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     file_path: Mapped[str] = mapped_column(String(500), nullable=False, unique=True)
     file_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    status: Mapped[str] = mapped_column(String(50), nullable=False, default="uploaded")
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="uploaded") # uploaded, processing, processed, indexed, failed
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
