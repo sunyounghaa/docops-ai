@@ -32,5 +32,3 @@ class ChunkEmbeddingRepository:
             ChunkEmbedding.document_chunk_id == document_chunk_id
         )
         return self.db.scalar(stmt)
-    def create_embedding(self, embedding):
-        self.db.add(embedding)
