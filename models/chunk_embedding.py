@@ -1,7 +1,7 @@
 # models/chunk_embedding.py
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base import Base
@@ -21,6 +21,8 @@ class ChunkEmbedding(Base):
 
     embedding_model: Mapped[str] = mapped_column(String, nullable=False)
     embedding_dimension: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    vector: Mapped[list] = mapped_column(JSON, nullable=True)
 
     status: Mapped[str] = mapped_column(String, nullable=False, default="pending")
 
