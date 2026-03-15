@@ -13,13 +13,15 @@ from services.chunking_service import ChunkingService
 
 ALLOWED_EXTENSIONS = {".pdf"}
 
-document_repo = DocumentRepository()
-document_chunk_repo = DocumentChunkRepository()
 document_parser_service = DocumentParserService()
 chunking_service = ChunkingService()
 
 
 def upload_document(db: Session, file: UploadFile):
+
+    document_repo = DocumentRepository()
+    document_chunk_repo = DocumentChunkRepository(db)
+
     if not file.filename:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -61,7 +63,6 @@ def upload_document(db: Session, file: UploadFile):
 
         if chunks:
             document_chunk_repo.create_many(
-                db=db,
                 document_id=document.id,
                 chunks=chunks,
             )
