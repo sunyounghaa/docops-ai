@@ -1,11 +1,12 @@
 # repositories/document_chunk_repo.py
+from __future__ import annotations
+
 from sqlalchemy.orm import Session
 
 from models.document_chunk import DocumentChunk
 
 
 class DocumentChunkRepository:
-
     def __init__(self, db: Session):
         self.db = db
 
@@ -15,7 +16,6 @@ class DocumentChunkRepository:
         document_id: int,
         chunks: list[dict],
     ) -> list[DocumentChunk]:
-
         chunk_objects = [
             DocumentChunk(
                 document_id=document_id,
@@ -34,7 +34,7 @@ class DocumentChunkRepository:
 
         return chunk_objects
 
-    def list_by_document_id(self, document_id: int) -> list[DocumentChunk]:
+    def get_by_document_id(self, document_id: int) -> list[DocumentChunk]:
         return (
             self.db.query(DocumentChunk)
             .filter(DocumentChunk.document_id == document_id)
@@ -46,13 +46,4 @@ class DocumentChunkRepository:
         self.db.query(DocumentChunk).filter(
             DocumentChunk.document_id == document_id
         ).delete()
-
         self.db.commit()
-
-    def get_chunks_by_document_id(self, document_id: int) -> list[DocumentChunk]:
-
-        return (
-            self.db.query(DocumentChunk)
-            .filter(DocumentChunk.document_id == document_id)
-            .all()
-        )
