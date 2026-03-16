@@ -13,3 +13,9 @@ class DocumentUploadResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class DocumentIndexResponse(BaseModel):
+    document_id: int
+    status: str
+    created_embeddings: int
+    skipped_embeddings: int

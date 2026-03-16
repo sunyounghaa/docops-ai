@@ -1,13 +1,18 @@
 # repositories/document_repo.py
+from __future__ import annotations
+
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from models.document import Document
 
 
 class DocumentRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
     def create_document(
         self,
-        db: Session,
         *,
         filename: str,
         stored_filename: str,
@@ -22,16 +27,14 @@ class DocumentRepository:
             file_type=file_type,
             status=status,
         )
-        db.add(document)
-        db.commit()
-        db.refresh(document)
+        self.db.add(document)
+        self.db.commit()
+        self.db.refresh(document)
         return document
 
-    def get_document_by_id(self, db: Session, document_id: int) -> Document | None:
-        return db.query(Document).filter(Document.id == document_id).first()
+    def get_by_id(self, document_id: int) -> Document | None:
+        stmt = select(Document).where(Document.id == document_id)
+        return self.db.scalar(stmt)
 
-    def update_document_status(self, db: Session, document: Document, status: str) -> Document:
+    def update_status(self, document: Document, status: str) -> None:
         document.status = status
-        db.commit()
-        db.refresh(document)
-        return document
