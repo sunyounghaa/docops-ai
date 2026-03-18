@@ -19,7 +19,7 @@ chunking_service = ChunkingService()
 
 def upload_document(db: Session, file: UploadFile):
 
-    document_repo = DocumentRepository()
+    document_repo = DocumentRepository(db)
     document_chunk_repo = DocumentChunkRepository(db)
 
     if not file.filename:
@@ -48,7 +48,6 @@ def upload_document(db: Session, file: UploadFile):
             buffer.write(file_bytes)
 
         document = document_repo.create_document(
-            db=db,
             filename=file.filename,
             stored_filename=stored_filename,
             file_path=str(file_path),
@@ -56,7 +55,7 @@ def upload_document(db: Session, file: UploadFile):
             status="uploaded",
         )
 
-        document_repo.update_document_status(db, document, "processing")
+        document = document_repo.update_status(document, "processing")
 
         pages = document_parser_service.extract_pdf_pages(str(file_path))
         chunks = chunking_service.create_chunks(pages)
@@ -67,7 +66,7 @@ def upload_document(db: Session, file: UploadFile):
                 chunks=chunks,
             )
 
-        document = document_repo.update_document_status(db, document, "processed")
+        document = document_repo.update_status(document, "processed")
         return document
 
     except Exception as e:

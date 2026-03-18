@@ -36,5 +36,9 @@ class DocumentRepository:
         stmt = select(Document).where(Document.id == document_id)
         return self.db.scalar(stmt)
 
-    def update_status(self, document: Document, status: str) -> None:
+    def update_status(self, document: Document, status: str) -> Document:
         document.status = status
+        self.db.add(document)
+        self.db.commit()
+        self.db.refresh(document)
+        return document
