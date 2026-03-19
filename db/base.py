@@ -1,9 +1,5 @@
 # db/base.py
-from sqlalchemy.orm import DeclarativeBase
-
-class Base(DeclarativeBase):
-    pass
-
+from db.base_class import Base
 
 # 모델 import 등록
 from models.conversation import Conversation  # noqa: F401

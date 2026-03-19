@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db.base import Base
+from db.base_class import Base
 
 class Document(Base):
     __tablename__ = "documents"

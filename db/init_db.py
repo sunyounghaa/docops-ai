@@ -1,5 +1,5 @@
 # db/init_db.py
-from db.base import Base
+from db.base_class import Base
 from db.session import engine
 
 from models.conversation import Conversation
