@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, Integer, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.base import Base
+from db.base_class import Base
 
 
 class ChunkEmbedding(Base):
