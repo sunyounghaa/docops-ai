@@ -1,3 +1,4 @@
+# scripts/test_retrieval.py
 from db.session import SessionLocal
 from services.retrieval_service import RetrievalService
 

@@ -1,4 +1,4 @@
-# prompt/system_prompt.py
+# prompts/system_prompt.py
 from core.settings import settings
 
 def get_system_prompt() -> str:
