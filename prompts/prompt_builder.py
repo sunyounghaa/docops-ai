@@ -1,4 +1,4 @@
-# prompt/prompt_builder.py
+# prompts/prompt_builder.py
 from core.settings import settings
 from prompts.system_prompt import get_system_prompt
 
