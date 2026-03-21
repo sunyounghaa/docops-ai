@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from db.init_db import init_db
 from routers.chat import router as chat_router
 from routers.documents import router as documents_router
+from routers.qa import router as qa_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,3 +23,4 @@ def health():
 
 app.include_router(chat_router)
 app.include_router(documents_router)
+app.include_router(qa_router)
