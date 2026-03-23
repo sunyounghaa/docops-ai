@@ -11,6 +11,9 @@ from repositories.document_chunk_repo import DocumentChunkRepository
 from services.document_parser_service import DocumentParserService
 from services.chunking_service import ChunkingService
 
+from core.config import DOCUMENT_STORAGE_DIR
+from pathlib import Path
+
 ALLOWED_EXTENSIONS = {".pdf"}
 
 document_parser_service = DocumentParserService()
@@ -35,7 +38,7 @@ def upload_document(db: Session, file: UploadFile):
             detail="Only PDF files are allowed.",
         )
 
-    storage_dir = Path(settings.DOCUMENT_STORAGE_DIR)
+    storage_dir = Path(DOCUMENT_STORAGE_DIR)
     storage_dir.mkdir(parents=True, exist_ok=True)
 
     stored_filename = f"{uuid.uuid4().hex}{file_ext}"

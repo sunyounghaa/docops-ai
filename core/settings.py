@@ -2,6 +2,8 @@
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from core.config import DB_PATH
+
 BASE_DIR = Path(__file__).resolve().parents[1] # docops-ai 기준(필요 시 조정)
 
 class Settings(BaseSettings):
@@ -16,7 +18,7 @@ class Settings(BaseSettings):
     OPENAI_TIMEOUT_SEC: int = 30
     APP_ENV: str = "local"
 
-    DATABASE_URL: str = f"sqlite:///{(BASE_DIR / 'app.db').as_posix()}"
+    DATABASE_URL: str = f"sqlite:///{DB_PATH}"
 
     DOCUMENT_STORAGE_DIR: str = str(BASE_DIR / "storage" / "documents")
 
